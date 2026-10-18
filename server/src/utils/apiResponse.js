@@ -1,0 +1,60 @@
+export class ApiResponse {
+  constructor(statusCode, data, message = 'Success') {
+    this.success = statusCode < 400;
+    this.statusCode = statusCode;
+    this.message = message;
+    this.data = data;
+  }
+
+  static success(res, data, message = 'Success', statusCode = 200) {
+    return res.status(statusCode).json({
+      success: true,
+      statusCode,
+      message,
+      data
+    });
+  }
+
+  static created(res, data, message = 'Created successfully') {
+    return res.status(201).json({
+      success: true,
+      statusCode: 201,
+      message,
+      data
+    });
+  }
+}
+
+export class ApiError extends Error {
+  constructor(statusCode, message, errors = []) {
+    super(message);
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.success = false;
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  static badRequest(message, errors = []) {
+    return new ApiError(400, message, errors);
+  }
+
+  static unauthorized(message = 'Unauthorized') {
+    return new ApiError(401, message);
+  }
+
+  static forbidden(message = 'Forbidden') {
+    return new ApiError(403, message);
+  }
+
+  static notFound(message = 'Resource not found') {
+    return new ApiError(404, message);
+  }
+
+  static conflict(message = 'Conflict') {
+    return new ApiError(409, message);
+  }
+
+  static internal(message = 'Internal server error') {
+    return new ApiError(500, message);
+  }
+}
